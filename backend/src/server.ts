@@ -1,17 +1,24 @@
 import app from "./app";
-import dotenv from "dotenv"
-import { env } from "./config";
+import { connectDatabase, env } from "./config";
 
-dotenv.config()
+const startServer = async () => {
+    try {
+        await connectDatabase();
 
-const PORT = process.env.PORT
+        const PORT = Number(env.PORT);
 
-app.listen(PORT, () => {
-    console.log(`
+        app.listen(PORT, () => {
+            console.log(`
 =================================
 🚀 Threads of Hope AI Backend
 🌍 Environment: ${env.NODE_ENV}
 📡 Port: ${PORT}
 =================================
 `);
-});
+        });
+    } catch (error) {
+        console.error("Server startup failed");
+    }
+};
+
+startServer();
