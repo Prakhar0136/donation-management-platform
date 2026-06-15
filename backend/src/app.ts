@@ -1,15 +1,10 @@
 import express from "express"
+import healthRoutes from "./routes/health.routes";
 
 const app = express()
 
 app.use(express.json())
 
-app.get("/health", (req, res) => {
-    res.json({
-        success: true,
-        message: "server is healthy",
-        timestamp: new Date().toISOString()
-    });
-});
+app.use("/api/v1/health", healthRoutes);
 
 export default app
