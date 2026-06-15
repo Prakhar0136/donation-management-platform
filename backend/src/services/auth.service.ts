@@ -2,6 +2,9 @@ import { AppError } from "../utils/AppError";
 import { UserRepository } from "../repositories/user.repository";
 import { PasswordUtil } from "../utils/password";
 import { JwtUtil } from "../utils/jwt";
+import jwt from "jsonwebtoken";
+import { JwtPayload } from "../types/jwt.types";
+import { env } from "../config/env";
 
 export class AuthService {
     static async register(data: {
@@ -45,7 +48,7 @@ export class AuthService {
         password: string;
     }) {
         const user =
-            await UserRepository.findByEmail(
+            await UserRepository.findByEmailWithPassword(
                 data.email
             );
 
@@ -69,18 +72,28 @@ export class AuthService {
             );
         }
 
-        const token =
-            JwtUtil.generateToken({
-                userId: user._id.toString(),
-                role: user.role,
-            });
+        const payload = {
+            userId: user._id.toString(),
+            role: user.role,
+        };
 
-        const userObject = user.toObject();
+        const accessToken =
+            JwtUtil.generateToken(payload);
 
-        const { password, ...safeUser } = userObject;
+        const refreshToken =
+            JwtUtil.generateRefreshToken(
+                payload
+            );
+
+        const userObject =
+            user.toObject();
+
+        const { password, ...safeUser } =
+            userObject;
 
         return {
-            token,
+            accessToken,
+            refreshToken,
             user: safeUser,
         };
     }
@@ -107,5 +120,20 @@ export class AuthService {
             user: safeUser
         };
 
+    }
+
+    static refreshToken(
+        refreshToken: string
+    ) {
+        const decoded =
+            jwt.verify(
+                refreshToken,
+                env.JWT_REFRESH_SECRET
+            ) as JwtPayload;
+
+        return JwtUtil.generateToken({
+            userId: decoded.userId,
+            role: decoded.role,
+        });
     }
 }

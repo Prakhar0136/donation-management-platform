@@ -23,6 +23,21 @@ export class JwtUtil {
         return jwt.verify(
             token,
             env.JWT_SECRET
+        ) as jwt.JwtPayload & { userId: string; role: string };
+    }
+
+    static generateRefreshToken(
+        payload: {
+            userId: string;
+            role: string;
+        }
+    ) {
+        return jwt.sign(
+            payload,
+            env.JWT_REFRESH_SECRET,
+            {
+                expiresIn: "7d",
+            }
         );
     }
 }

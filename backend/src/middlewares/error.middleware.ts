@@ -15,6 +15,17 @@ export const errorMiddleware = (
         });
     }
 
+    if (
+        "code" in err &&
+        err.code === 11000
+    ) {
+        return res.status(409).json({
+            success: false,
+            message:
+                "Duplicate value detected",
+            errors: [],
+        });
+    }
     return res.status(500).json({
         success: false,
         message: "Internal Server Error",

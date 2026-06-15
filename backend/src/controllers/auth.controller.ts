@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
 import { asyncHandler } from "../utils/asyncHandler";
 import { AuthRequest } from "../middlewares/auth.middleware";
+import { ResponseUtil } from "../utils/response";
 
 export class AuthController {
     static register = asyncHandler(
@@ -27,11 +28,11 @@ export class AuthController {
                     req.body
                 );
 
-            res.status(200).json({
-                success: true,
-                message: "Login successful",
-                data: result,
-            });
+            ResponseUtil.success(
+                res,
+                result,
+                "Login successful"
+            );
         }
     );
 
